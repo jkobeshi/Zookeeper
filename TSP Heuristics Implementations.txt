@@ -1,0 +1,167 @@
+
+/*
+//Farthest Insertion
+void zooData::FASTTSP() {
+	coords[0].Visited = 1; coords[0].edge = &coords[0];
+	uint16_t prev = 0, max = 0, insert;
+	for (uint16_t nVisit = 1; nVisit < cord_size; ++nVisit) {
+		for (uint16_t i = 1; i < cord_size; ++i) {
+			if (!coords[i].Visited) {
+				if ((dist2(coords[i], coords[prev]) > coords[i].distance) || (coords[i].distance == numeric_limits<double>::infinity())) {
+					coords[i].distance = dist2(coords[i], coords[prev]);
+				}
+				if (coords[max].Visited || (coords[max].distance < coords[i].distance)) {
+					max = i;
+				}
+			}
+		}
+
+		coords[max].Visited = 1, prev = 0, insert = coords[0].edge->CageID;
+		while (insert != 0) {
+			if (((dist2(coords[insert], coords[max]) + dist2(*coords[insert].edge, coords[max])) - dist2(coords[insert], *coords[insert].edge))
+				< ((dist2(coords[prev], coords[max]) + dist2(*coords[prev].edge, coords[max])) - dist2(coords[prev], *coords[prev].edge))) {
+				prev = insert;
+			}
+			insert = coords[insert].edge->CageID;
+		}
+		coords[max].edge = coords[prev].edge, coords[prev].edge = &coords[max];
+		coords[max].distance = dist2(coords[max], *coords[max].edge);
+		coords[prev].distance = dist2(coords[prev], *coords[prev].edge);
+		prev = max;
+	}
+}*/
+
+/*
+//Nearest Insertion + 2OPT
+void zooData::FASTTSP() {
+	coords[0].Visited = 1; coords[0].edge = &coords[0];
+	uint16_t prev = 0, min = 0, insert;
+	for (uint16_t nVisit = 1; nVisit < cord_size; ++nVisit) {
+		for (uint16_t i = 1; i < cord_size; ++i) {
+			if (!coords[i].Visited) {
+				if (dist2(coords[i], coords[prev]) < coords[i].distance) {
+					coords[i].distance = dist2(coords[i], coords[prev]);
+				}
+				if (CompareDist.operator()(coords[min], coords[i])) {
+					min = i;
+				}
+			}
+		}
+		coords[min].Visited = 1, prev = 0, insert = coords[0].edge->CageID;
+		while (insert != 0) {
+			if (((dist2(coords[insert], coords[min]) + dist2(*coords[insert].edge, coords[min])) - coords[insert].distance)
+				< ((dist2(coords[prev], coords[min]) + dist2(*coords[prev].edge, coords[min])) - coords[prev].distance)) {
+				prev = insert;
+			}
+			insert = coords[insert].edge->CageID;
+		}
+		coords[min].edge = coords[prev].edge, coords[prev].edge = &coords[min];
+		coords[min].distance = dist2(coords[min], *coords[min].edge);
+		coords[prev].distance = dist2(coords[prev], *coords[prev].edge);
+		prev = min;
+	}
+	for (uint16_t i = 0; i < cord_size; ++i) {
+		for (uint16_t j = uint16_t(i + 1); j < cord_size; ++j) {
+			if ((dist2(coords[i], coords[j]) + dist2(*coords[i].edge, *coords[j].edge)) <
+				(coords[i].distance + coords[j].distance)) {
+				cout << i << " " << j << endl;
+				prev = coords[i].edge->CageID;
+				min = coords[i].edge->edge->CageID;
+				insert = coords[i].edge->edge->edge->CageID;
+				while (prev != j) {
+					coords[min].edge = &coords[prev];
+					coords[min].distance = dist2(coords[min], coords[prev]);
+					prev = min; min = insert; insert = coords[insert].edge->CageID;
+				}
+				coords[i].edge->edge = &coords[min];
+				coords[i].edge->distance = dist2(*coords[i].edge, coords[min]);
+				coords[i].edge = &coords[j];
+				coords[i].distance = dist2(coords[i], coords[j]);
+			}
+		}
+	}
+}*/
+
+
+/*
+//Nearest Insertion
+void zooData::FASTTSP() {
+	coords[0].Visited = 1; coords[0].edge = &coords[0];
+	uint16_t nVisit = 1, prev = 0, min = 0, insert;
+	while (nVisit < cord_size) {
+		for (uint16_t i = 1; i < cord_size; ++i) {
+			if (!coords[i].Visited) {
+				if (dist2(coords[i], coords[prev]) < coords[i].distance) {
+					coords[i].distance = dist2(coords[i], coords[prev]);
+				}
+				if (CompareDist.operator()(coords[min], coords[i])) {
+					min = i;
+				}
+			}
+		}
+		//cout << "MIN: " << min << " PREV: " << prev <<  endl;
+		coords[min].Visited = 1;
+		insert = coords[0].edge->CageID;
+		while (insert != 0) {
+			//cout << insert << " " << coords[insert].edge->CageID << " " << prev << " " << min;
+			if (((dist2(coords[insert], coords[min]) + dist2(*coords[insert].edge, coords[min])) - coords[insert].distance)
+				< ((dist2(coords[prev], coords[min]) + dist2(*coords[prev].edge, coords[min])) - coords[prev].distance)) {
+				prev = insert;
+				//cout << "HI";
+			}
+			//cout << endl;
+			insert = coords[insert].edge->CageID;
+		}
+		//cout << "INSERT: " << min << " BETWEEN: " << prev << " " << coords[prev].edge->CageID << endl << endl;
+		coords[min].edge = coords[prev].edge;
+		coords[prev].edge = &coords[min];
+		coords[min].distance = dist2(coords[min], *coords[min].edge);
+		coords[prev].distance = dist2(coords[prev], *coords[prev].edge);
+		
+		
+		prev = min;
+		++nVisit;
+	}
+}*/
+
+
+/*
+//Nearest Node + 2 OPT
+void zooData::FASTTSP() {
+	coords[0].Visited = 1; uint16_t fir, mid, las, prev = 0, min = 0, nVisit = 1;
+	for(nVisit = 1; nVisit < cord_size; ++ nVisit) {
+		for (uint16_t i = 1; i < cord_size; ++i) {
+			if (!coords[i].Visited) {
+				coords[i].distance = dist2(coords[i], coords[prev]);
+				if (CompareDist.operator()(coords[min], coords[i])) {
+					min = i;
+				}
+			}
+		}
+		coords[min].edge = &coords[prev]; prev = min; coords[prev].Visited = 1;
+	}
+	coords[0].edge = &coords[prev];
+	coords[0].distance = dist2(coords[prev], coords[0]);
+
+
+	for (uint16_t i = 0; i < cord_size; ++i) {
+		for (uint16_t j = uint16_t(i + 1); j < cord_size; ++j) {
+			if ((dist2(coords[i], coords[j]) + dist2(*coords[i].edge, *coords[j].edge)) <
+				(coords[i].distance + coords[j].distance)) {
+				cout << i << " " << j << endl;
+				fir = coords[i].edge->CageID;
+				mid = coords[i].edge->edge->CageID;
+				las = coords[i].edge->edge->edge->CageID;
+				while (fir != j) {
+					coords[mid].edge = &coords[fir];
+					coords[mid].distance = dist2(coords[mid], coords[fir]);
+					fir = mid; mid = las; las = coords[las].edge->CageID;
+				}
+				coords[i].edge->edge = &coords[mid];
+				coords[i].edge->distance = dist2(*coords[i].edge, coords[mid]);
+				coords[i].edge = &coords[j];
+				coords[i].distance = dist2(coords[i], coords[j]);
+			}
+		}
+	}
+}*/
